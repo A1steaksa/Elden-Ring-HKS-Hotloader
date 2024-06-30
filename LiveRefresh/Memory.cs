@@ -117,7 +117,7 @@ namespace EldenRingCodeHotloader.LiveRefresh {
 			CheckIngameReloadINI();
 
 			var aob = new AOBScanner( AttachedProcess );
-			EldenRing_WorldChrManPtr = Memory.ScanRelativeAob( aob, GetIngameReloadIniOption( "EldenRing_WorldChrManPtr_AOB" ) ?? "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 0F 48 39 88 ?? ?? ?? ?? 75 06 89 B1 64 03 ?? ?? 0F 28 05 ?? ?? ?? ?? 4C 8D 45 E7",
+			EldenRing_WorldChrManPtr = Memory.ScanRelativeAob( aob, GetIngameReloadIniOption( "EldenRing_WorldChrManPtr_AOB" ) ?? "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 0F 48 39 88",
 				GetIngameReloadIniOptionInt( "EldenRing_WorldChrManPtr_JumpInstr_StartOffsetInAOB" ) ?? 3, GetIngameReloadIniOptionInt( "EldenRing_WorldChrManPtr_JumpInstr_EndOffsetInAOB" ) ?? 7 );
 			/*
 			if( EldenRing_WorldChrManPtr == IntPtr.Zero ) {
