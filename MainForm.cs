@@ -82,39 +82,52 @@ namespace EldenRingCodeHotloader {
 		}
 
 		public void Log( string text ) {
-			HotloadLog.Items.Add( DateTime.Now.ToShortTimeString() + " - " + text );
+			HotloadLog.Invoke( new Action( () => {
+				HotloadLog.Items.Add( DateTime.Now.ToShortTimeString() + " - " + text );
+			} ) );	
 		}
 
 		public void SetHotloadStatus( HotloadStatus status, string logMessage = "" ) {
 			_hotloadStatus = status;
 
+			bool hotloadButtonEnabled = false;
+			bool hotloadAutomaticallyCheckboxEnabled = false;
+			string statusLabelText = "";
+
 			switch( status ) {
 				case HotloadStatus.Disabled:
-					HotloadButton.Enabled = false;
-					HotloadAutomaticallyCheckbox.Enabled = false;
-					
-					StatusLabel.Text = "Select a script folder to enable hotloading";
+					hotloadButtonEnabled = false;
+					hotloadAutomaticallyCheckboxEnabled = false;
+
+					statusLabelText = "Select a script folder to enable hotloading";
 					
 					break;
 				case HotloadStatus.NeverHotloaded:
-					HotloadButton.Enabled = false;
-					HotloadAutomaticallyCheckbox.Enabled = true;
-					
-					StatusLabel.Text = "Waiting for script changes";
+					hotloadButtonEnabled = false;
+					hotloadAutomaticallyCheckboxEnabled = true;
+
+					statusLabelText = "Waiting for script changes";
 					
 					break;
 				case HotloadStatus.HasHotloaded:
-					HotloadButton.Enabled = false;
-					HotloadAutomaticallyCheckbox.Enabled = true;
+					hotloadButtonEnabled = false;
+					hotloadAutomaticallyCheckboxEnabled = true;
 
 					break;
 				case HotloadStatus.Failed:
-					HotloadButton.Enabled = false;
-					HotloadAutomaticallyCheckbox.Enabled = true;
-					
-					StatusLabel.Text = "Hotload failed";
+					hotloadButtonEnabled = false;
+					hotloadAutomaticallyCheckboxEnabled = true;
+
+					statusLabelText = "Hotload failed";
 					
 					break;
+			}
+
+			// Update the UI
+			HotloadButton.Invoke( new Action( () => HotloadButton.Enabled = hotloadButtonEnabled ) );
+			HotloadAutomaticallyCheckbox.Invoke( new Action( () => HotloadAutomaticallyCheckbox.Enabled = hotloadAutomaticallyCheckboxEnabled ) );
+			if( statusLabelText.Length > 0 ) {
+				StatusLabel.Invoke( new Action( () => StatusLabel.Text = statusLabelText ) );
 			}
 
 			if( logMessage.Length > 0 ) {
@@ -226,15 +239,16 @@ namespace EldenRingCodeHotloader {
 		private void OnHotloadTimerTick( object state ) {
 			if( _hotloadStatus == HotloadStatus.HasHotloaded ) {
 				TimeSpan timeSinceLastHotload = DateTime.Now - _lastHotloadTime;
-				StatusLabel.Text = $"Hotloaded {_lastHotloadedFileName} {timeSinceLastHotload.TotalSeconds:0}s ago";
+				StatusLabel.Invoke( new Action( () => StatusLabel.Text = $"Hotloaded {_lastHotloadedFileName} {timeSinceLastHotload.TotalSeconds:0}s ago" ) );
 			}
 			
 			bool hasFilesToHotload = _updatedFiles.Count > 0;
 			if( hasFilesToHotload && HotloadAutomaticallyCheckbox.Checked ) {
 				HotloadMultiple( _updatedFiles.Keys.ToList() );
 				_updatedFiles.Clear();
-				UpdatedFilesList.Items.Clear();
-				HotloadButton.Enabled = false;
+
+				UpdatedFilesList.Invoke( new Action( () => UpdatedFilesList.Items.Clear() ) );
+				HotloadButton.Invoke( new Action( () => HotloadButton.Enabled = false ) );
 			}
 			
 		}
